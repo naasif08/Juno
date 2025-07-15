@@ -4,7 +4,7 @@ public interface JunoBuilder {
 
     void buildJuno();
 
-    void flashFirmware(OperationMode operationMode);
+    void flashFirmware();
 
     void clean();
 

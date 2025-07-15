@@ -1,7 +1,6 @@
 package juno.builder.impl;
 
 import juno.builder.JunoBuilder;
-import juno.builder.OperationMode;
 import juno.detector.JunoDetector;
 import juno.detector.JunoPaths;
 import juno.flasher.JunoFlasher;
@@ -34,7 +33,7 @@ public class LocalBuilder implements JunoBuilder {
     }
 
     @Override
-    public void flashFirmware(OperationMode operationMode) {
+    public void flashFirmware() {
         JunoFlasher junoFlasher = new JunoFlasher();
         try {
             junoFlasher.flashProject(projectDir);

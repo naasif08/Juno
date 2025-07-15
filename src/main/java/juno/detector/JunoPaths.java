@@ -3,15 +3,14 @@ package juno.detector;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Properties;
 
-public class JunoPaths {
+public final class JunoPaths {
 
     private static boolean initialized = false;
 
+    // Public static paths
     public static String idfPath;
     public static String pythonPath;
     public static String pythonExecutablePath;
@@ -29,8 +28,16 @@ public class JunoPaths {
     public static String dfuUtilBinPath;
     public static String openOcdScriptsPath;
 
+    private static File dotJunoDir;
+
     public static void init() {
         if (initialized) return;
+
+        dotJunoDir = new File(System.getProperty("user.dir"), ".juno");
+        if (!dotJunoDir.exists()) dotJunoDir.mkdirs();
+
+        ensureJunoPropertiesTemplate();
+
         idfPath = JunoDetector.detectIdfPath();
         pythonPath = JunoDetector.detectPythonPath();
         pythonExecutablePath = JunoDetector.detectPythonExecutable();
@@ -46,54 +53,109 @@ public class JunoPaths {
         cCacheBinPath = JunoDetector.detectCcacheBin();
         dfuUtilBinPath = JunoDetector.detectDfuUtilBin();
         openOcdScriptsPath = JunoDetector.detectOpenOcdScriptsPath();
-        ensureJunoPropertiesTemplate();
+
         loadPropertiesOverrides();
         validatePaths();
+
         initialized = true;
     }
 
+    public static boolean isInitialized() {
+        return initialized;
+    }
+
+    public static File getDotJunoDir() {
+        if (dotJunoDir == null) {
+            dotJunoDir = new File(System.getProperty("user.dir"), ".juno");
+            if (!dotJunoDir.exists()) {
+                boolean created = dotJunoDir.mkdirs();
+                if (!created) {
+                    throw new RuntimeException("❌ Failed to create/access .juno directory: " + dotJunoDir.getAbsolutePath());
+                }
+            }
+        }
+        return dotJunoDir;
+    }
+
+    public static File getProjectDir(String projectName) {
+        Path projectDir = getDotJunoDir().toPath().resolve(projectName);
+        try {
+            Files.createDirectories(projectDir);
+        } catch (IOException e) {
+            throw new RuntimeException("❌ Failed to create/access project directory: " + projectDir, e);
+        }
+        return projectDir.toFile();
+    }
+
+    private static void ensureJunoPropertiesTemplate() {
+        Path propPath = getDotJunoDir().toPath().resolve("juno.properties");
+        if (Files.exists(propPath)) return;
+
+        String template = """
+            # Juno Properties Template
+            # Fill manually if auto-detection fails
+
+            juno.idfPath=
+            juno.idfPyPath=
+            juno.pythonPath=
+            juno.pythonExecutablePath=
+            juno.toolchainPath=
+            juno.cMakePath=
+            juno.ninjaPath=
+            juno.serialPort=
+
+            juno.gitPath=
+            juno.xtensaGdbPath=
+            juno.xtensaToolchainPath=
+            juno.espClangPath=
+            juno.openOcdBin=
+            juno.cCacheBinPath=
+            juno.dfuUtilBinPath=
+            juno.openOcdScriptsPath=
+            """;
+
+        try {
+            Files.writeString(propPath, template);
+            System.out.println("📝 Created .juno/juno.properties template.");
+        } catch (IOException e) {
+            System.err.println("❌ Failed to create juno.properties: " + e.getMessage());
+        }
+    }
+
     private static void loadPropertiesOverrides() {
-        Path propPath = Paths.get(System.getProperty("user.dir"), ".juno", "juno.properties");
+        Path propPath = getDotJunoDir().toPath().resolve("juno.properties");
         if (!Files.exists(propPath)) return;
 
         try (InputStream in = Files.newInputStream(propPath)) {
             Properties props = new Properties();
             props.load(in);
-
             System.out.println("✅ Loaded manual overrides from juno.properties");
 
-            if (idfPath == null || idfPath.equals("null")) idfPath = props.getProperty("juno.idfPath", idfPath);
-            if (pythonPath == null || pythonPath.equals("null"))
-                pythonPath = props.getProperty("juno.pythonPath", pythonPath);
-            if (pythonExecutablePath == null || pythonExecutablePath.equals("null"))
-                pythonExecutablePath = props.getProperty("juno.pythonExecutablePath", pythonExecutablePath);
-            if (toolchainPath == null || toolchainPath.equals("null"))
-                toolchainPath = props.getProperty("juno.toolchainPath", toolchainPath);
-            if (serialPort == null || serialPort.equals("null"))
-                serialPort = props.getProperty("juno.serialPort", serialPort);
-            if (gitPath == null || gitPath.equals("null")) gitPath = props.getProperty("juno.gitPath", gitPath);
-            if (xtensaGdbPath == null || xtensaGdbPath.equals("null"))
-                xtensaGdbPath = props.getProperty("juno.xtensaGdbPath", xtensaGdbPath);
-            if (xtensaToolchainPath == null || xtensaToolchainPath.equals("null"))
-                xtensaToolchainPath = props.getProperty("juno.xtensaToolchainPath", xtensaToolchainPath);
-            if (cMakePath == null || cMakePath.equals("null"))
-                cMakePath = props.getProperty("juno.cMakePath", cMakePath);
-            if (openOcdBin == null || openOcdBin.equals("null"))
-                openOcdBin = props.getProperty("juno.openOcdBin", openOcdBin);
-            if (ninjaPath == null || ninjaPath.equals("null"))
-                ninjaPath = props.getProperty("juno.ninjaPath", ninjaPath);
-            if (idfPyPath == null || idfPyPath.equals("null"))
-                idfPyPath = props.getProperty("juno.idfPyPath", idfPyPath);
-            if (cCacheBinPath == null || cCacheBinPath.equals("null"))
-                cCacheBinPath = props.getProperty("juno.cCacheBinPath", cCacheBinPath);
-            if (dfuUtilBinPath == null || dfuUtilBinPath.equals("null"))
-                dfuUtilBinPath = props.getProperty("juno.dfuUtilBinPath", dfuUtilBinPath);
-            if (openOcdScriptsPath == null || openOcdScriptsPath.equals("null"))
-                openOcdScriptsPath = props.getProperty("juno.openOcdScriptsPath", openOcdScriptsPath);
+            idfPath = resolve(props, "juno.idfPath", idfPath);
+            pythonPath = resolve(props, "juno.pythonPath", pythonPath);
+            pythonExecutablePath = resolve(props, "juno.pythonExecutablePath", pythonExecutablePath);
+            toolchainPath = resolve(props, "juno.toolchainPath", toolchainPath);
+            serialPort = resolve(props, "juno.serialPort", serialPort);
+            gitPath = resolve(props, "juno.gitPath", gitPath);
+            xtensaGdbPath = resolve(props, "juno.xtensaGdbPath", xtensaGdbPath);
+            xtensaToolchainPath = resolve(props, "juno.xtensaToolchainPath", xtensaToolchainPath);
+            espClangPath = resolve(props, "juno.espClangPath", espClangPath);
+            cMakePath = resolve(props, "juno.cMakePath", cMakePath);
+            openOcdBin = resolve(props, "juno.openOcdBin", openOcdBin);
+            ninjaPath = resolve(props, "juno.ninjaPath", ninjaPath);
+            idfPyPath = resolve(props, "juno.idfPyPath", idfPyPath);
+            cCacheBinPath = resolve(props, "juno.cCacheBinPath", cCacheBinPath);
+            dfuUtilBinPath = resolve(props, "juno.dfuUtilBinPath", dfuUtilBinPath);
+            openOcdScriptsPath = resolve(props, "juno.openOcdScriptsPath", openOcdScriptsPath);
 
         } catch (IOException e) {
             System.err.println("⚠️ Failed to read juno.properties: " + e.getMessage());
         }
+    }
+
+    private static String resolve(Properties props, String key, String fallback) {
+        String value = props.getProperty(key, fallback);
+        return (value == null || value.equalsIgnoreCase("null")) ? fallback : value;
     }
 
     private static void validatePaths() {
@@ -109,98 +171,11 @@ public class JunoPaths {
 
     private static void check(String name, String value) {
         if (value == null || value.trim().isEmpty() || value.equals("null")) {
-            System.err.println("\uD83D\uDD27 Configuration Error:");
-            System.err.println("\u001B[31m❌ Missing required path: juno." + name + "\u001B[0m");
-            System.err.println("Please fix this issue by one of the following options:\n");
-            System.err.println("  1. Open the generated file at:");
-            System.err.println("     .juno/juno.properties\n");
-            System.err.println("     → Set the value for: juno." + name);
-            System.err.println("     → Example for Windows:");
-            System.err.println("        juno.idfPath=C:/Espressif/frameworks/esp-idf-v5.3.1\n");
-            System.err.println("  2. Or, ensure your ESP-IDF environment is properly set in your system.\n");
-            System.err.println("Tip: This file is auto-generated and can be edited manually anytime.");
-
+            System.err.println("❌ Missing required path: juno." + name);
+            System.err.println("→ Fix it in .juno/juno.properties or set it manually.");
             System.exit(1);
         }
     }
 
-    public static boolean isInitialized() {
-        return initialized;
-    }
-
-    public static File getProjectDir(String projectName) {
-        Path projectDir = Paths.get(System.getProperty("user.dir"), ".juno", projectName);
-        if (!Files.exists(projectDir)) {
-            try {
-                Files.createDirectories(projectDir);
-            } catch (Exception e) {
-                throw new RuntimeException("❌ Failed to create/access project directory: " + projectDir, e);
-            }
-        }
-        return projectDir.toFile();
-    }
-
-
-    private static void ensureJunoPropertiesTemplate() {
-        Path propPath = Paths.get(System.getProperty("user.dir"), ".juno", "juno.properties");
-        if (Files.exists(propPath)) return;
-
-        try {
-            Files.createDirectories(propPath.getParent());
-            String template = """
-                    # Juno Properties Template
-                    # This file is auto-generated by Juno. You can edit it to override paths.
-                    # If JunoDetector doesn't find mandatory paths, you can edit this file manually.
-                    
-                    # Note: From 'juno.idfPath' to 'juno.serialPort' these are mandatory paths.
-                    # You will only be asked to fill them out manually if JunoDetector fails to find them automatically.
-                    
-                    # --- Examples ---
-                    # Windows:
-                    # juno.idfPath=C:/Espressif/frameworks/esp-idf-v5.3.1
-                    # juno.toolchainPath=C:/Espressif/tools/xtensa-esp-elf/esp-13.2.0_20240530/xtensa-esp-elf/bin
-                    # juno.pythonPath=C:/Espressif/python_env/idf5.3_py3.11_env/Scripts
-                    # juno.pythonExecutablePath=C:/Espressif/python_env/idf5.3_py3.11_env/Scripts/python.exe
-                    
-                    # Linux:
-                    # juno.idfPath=/home/username/esp/esp-idf
-                    # juno.pythonExecutablePath=/home/username/.espressif/python_env/idf5.x_py3.x_env/bin/python
-                    
-                    # macOS:
-                    # juno.idfPath=/Users/username/esp/esp-idf
-                    # juno.pythonExecutablePath=/Users/username/.espressif/python_env/idf5.x_py3.x_env/bin/python
-                    # ----------------
-                    
-                    juno.idfPath=
-                    juno.idfPyPath=
-                    juno.pythonPath=
-                    juno.pythonExecutablePath=
-                    juno.toolchainPath=
-                    juno.cMakePath=
-                    juno.ninjaPath=
-                    juno.serialPort=
-                    
-                    # These are optional paths, can be left empty if not needed.
-                    juno.gitPath=
-                    juno.xtensaGdbPath=
-                    juno.xtensaToolchainPath=
-                    juno.espClangPath=
-                    juno.openOcdBin=
-                    juno.cCacheBinPath=
-                    juno.dfuUtilBinPath=
-                    juno.openOcdScriptsPath=
-                    # Optional: If you want to edit this properties file manually, you can add any other custom properties here.
-                    """;
-
-            Files.writeString(propPath, template);
-            System.out.println("📝 Created template .juno/juno.properties file.");
-        } catch (IOException e) {
-            System.err.println("❌ Failed to create juno.properties: " + e.getMessage());
-        }
-    }
-
-
-    private JunoPaths() {
-        // Prevent instantiation
-    }
+    private JunoPaths() {} // prevent instantiation
 }

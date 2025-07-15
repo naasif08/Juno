@@ -1,24 +1,29 @@
 package juno.installer;
 
-import juno.detector.PlatformPathResolver;
+import juno.detector.JunoDetector;
+import juno.detector.JunoOS;
 import juno.utils.FileDownloader;
 import juno.utils.ZipExtractor;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class EspIdfInstaller {
 
     public static boolean isInstalled() {
-        Path idfPath = PlatformPathResolver.getIDFPath();
-        return Files.exists(idfPath) && Files.exists(idfPath.resolve("install.bat")); // Windows check
+        if(JunoDetector.detectIdfPath()!=null){
+            Path idfPath = Path.of(JunoDetector.detectIdfPath());
+            return Files.exists(idfPath) && Files.exists(idfPath.resolve("install.bat")); // Windows check
+        }
+        return false;
     }
 
     public static void downloadAndInstall() {
         String url = "https://github.com/naasif08/JunoProject/releases/download/idf-v5.4.2/esp-idf-v5.4.2.zip";
-        Path zipPath = PlatformPathResolver.getJunoFolder().resolve("esp-idf.zip");
-        Path targetDir = PlatformPathResolver.getIDFPath();
+        Path zipPath = getJunoFolder().resolve("esp-idf.zip");
+        Path targetDir = zipPath.getParent();
 
         try {
             System.out.println("📥 Downloading ESP-IDF...");
@@ -32,5 +37,26 @@ public class EspIdfInstaller {
         } catch (IOException e) {
             throw new RuntimeException("❌ Installation failed: " + e.getMessage());
         }
+    }
+
+    public static Path getJunoFolder() {
+       JunoOS os = getOSType();
+        switch (os) {
+            case WINDOWS:
+                return Paths.get("C:", "Juno");
+            case MACOS:
+            case LINUX:
+                return Paths.get(System.getProperty("user.home"), "Juno");
+            default:
+                throw new UnsupportedOperationException("Unsupported OS for Juno setup.");
+        }
+    }
+
+    public static JunoOS getOSType() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) return JunoOS.WINDOWS;
+        if (os.contains("mac")) return JunoOS.MACOS;
+        if (os.contains("nix") || os.contains("nux") || os.contains("aix")) return JunoOS.LINUX;
+        return JunoOS.UNKNOWN;
     }
 }
