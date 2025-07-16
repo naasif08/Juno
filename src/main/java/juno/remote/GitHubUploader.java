@@ -1,5 +1,7 @@
 package juno.remote;
 
+import juno.logger.JunoLogger;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +22,7 @@ public class GitHubUploader {
         // Step 1: Create a temporary directory to clone into
         Path tempDir = Files.createTempDirectory("juno-github-upload-");
         String tempPath = tempDir.toAbsolutePath().toString();
-        System.out.println("📂 Cloning repo to temp: " + tempPath);
+        JunoLogger.info("📂 Cloning repo to temp: " + tempPath);
 
         // Step 2: Clone the repo using token auth
         String authUrl = repoUrl.replace("https://", "https://" + accessToken + "@");
@@ -50,7 +52,7 @@ public class GitHubUploader {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("  » " + line);
+                JunoLogger.info("  » " + line);
             }
         }
 

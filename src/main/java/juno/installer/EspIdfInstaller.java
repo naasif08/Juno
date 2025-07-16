@@ -2,6 +2,7 @@ package juno.installer;
 
 import juno.detector.JunoDetector;
 import juno.detector.JunoOS;
+import juno.logger.JunoLogger;
 import juno.utils.FileDownloader;
 import juno.utils.ZipExtractor;
 
@@ -13,7 +14,7 @@ import java.nio.file.Paths;
 public class EspIdfInstaller {
 
     public static boolean isInstalled() {
-        if(JunoDetector.detectIdfPath()!=null){
+        if (JunoDetector.detectIdfPath() != null) {
             Path idfPath = Path.of(JunoDetector.detectIdfPath());
             return Files.exists(idfPath) && Files.exists(idfPath.resolve("install.bat")); // Windows check
         }
@@ -26,21 +27,23 @@ public class EspIdfInstaller {
         Path targetDir = zipPath.getParent();
 
         try {
-            System.out.println("📥 Downloading ESP-IDF...");
-            FileDownloader.downloadFile(url, zipPath);
+            JunoLogger.info("Downloading ESP-IDF...");
+            FileDownloader.downloadWithResume(url, zipPath);
 
-            System.out.println("📦 Extracting...");
+            JunoLogger.info("Extracting...");
             ZipExtractor.extract(zipPath, targetDir.getParent()); // extract into /Juno/
 
             Files.delete(zipPath); // optional cleanup
-            System.out.println("✅ ESP-IDF installed at: " + targetDir);
+            JunoLogger.success("ESP-IDF installed at: " + targetDir);
         } catch (IOException e) {
             throw new RuntimeException("❌ Installation failed: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static Path getJunoFolder() {
-       JunoOS os = getOSType();
+        JunoOS os = getOSType();
         switch (os) {
             case WINDOWS:
                 return Paths.get("C:", "Juno");

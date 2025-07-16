@@ -1,5 +1,7 @@
 package juno.flasher;
 
+import juno.logger.JunoLogger;
+
 import java.io.*;
 import java.util.Locale;
 
@@ -19,7 +21,7 @@ public class JunoFlasher {
         if (exitCode != 0) {
             throw new RuntimeException("Flashing failed with exit code: " + exitCode);
         } else {
-            System.out.println("✅ Flashing finished successfully.");
+            JunoLogger.success("✅ Flashing finished successfully.");
         }
     }
 

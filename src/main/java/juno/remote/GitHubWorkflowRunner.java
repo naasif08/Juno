@@ -1,5 +1,7 @@
 package juno.remote;
 
+import juno.logger.JunoLogger;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -32,15 +34,15 @@ public class GitHubWorkflowRunner {
     public Path waitForFirmwareArtifact(Path firmwareDir) throws IOException, InterruptedException {
         final int MAX_ATTEMPTS = 20;
         final int POLL_INTERVAL_MS = 10_000; // 10 seconds
-        System.out.println("🔍 Waiting for GitHub Actions to publish firmware artifact...");
+        JunoLogger.info("Waiting for GitHub Actions to publish firmware artifact...");
 
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
                 Path binFile = downloadFirmwareBin(firmwareDir);
-                System.out.println("✅ Firmware artifact is ready!");
+                JunoLogger.info("✅ Firmware artifact is ready!");
                 return binFile;
             } catch (FileNotFoundException e) {
-                System.out.printf("⏳ Attempt %d/%d: Not ready yet, retrying in %d sec...\n",
+                System.out.printf("【JUNO】Attempt %d/%d: Not ready yet, retrying in %d sec...\n",
                         attempt, MAX_ATTEMPTS, POLL_INTERVAL_MS / 1000);
                 Thread.sleep(POLL_INTERVAL_MS);
             }
@@ -53,12 +55,12 @@ public class GitHubWorkflowRunner {
     public void uploadProjectToRepo(Path projectDir) throws IOException {
         // Optional: Zip the project and push via Git CLI
         // Currently placeholder — you can implement `git push` if the repo is already cloned
-        System.out.println("🚀 [TODO] Push project to GitHub: " + repoUrl);
+        JunoLogger.info("🚀 [TODO] Push project to GitHub: " + repoUrl);
     }
 
     public void triggerBuild() {
         // Assuming a GitHub Actions workflow is already set to trigger on `push`
-        System.out.println("🔁 Waiting for GitHub Actions to finish build...");
+        JunoLogger.info("🔁 Waiting for GitHub Actions to finish build...");
     }
 
     public Path downloadFirmwareBin(Path outputDir) throws IOException {
@@ -120,7 +122,7 @@ public class GitHubWorkflowRunner {
     private int extractLatestArtifactId(InputStream jsonStream) throws IOException {
         // You can use Gson or Jackson for real JSON parsing.
         // Here’s just a placeholder:
-        System.out.println("📝 [TODO] Parse artifact JSON response...");
+        JunoLogger.info("📝 [TODO] Parse artifact JSON response...");
         return 123456; // Replace with real artifact ID
     }
 

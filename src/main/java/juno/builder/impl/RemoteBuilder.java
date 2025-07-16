@@ -3,6 +3,7 @@ package juno.builder.impl;
 import juno.builder.JunoBuilder;
 import juno.detector.JunoDetector;
 import juno.detector.JunoPaths;
+import juno.logger.JunoLogger;
 import juno.probuilder.JunoBatchBuilder;
 import juno.probuilder.JunoProjectCreator;
 import juno.remote.GitHubArtifactDownloader;
@@ -50,7 +51,7 @@ public class RemoteBuilder implements JunoBuilder {
             Path firmwareDir = JunoPaths.getDotJunoDir().toPath().resolve("firmware");
             Files.createDirectories(firmwareDir);
 
-            System.out.println("🚀 Uploading project to GitHub...");
+            JunoLogger.info("🚀 Uploading project to GitHub...");
 
             // 1. Push projectDir to a temp branch
             GitHubUploader uploader = new GitHubUploader(githubRepoUrl, githubAccessToken);
@@ -64,7 +65,7 @@ public class RemoteBuilder implements JunoBuilder {
             Path outputFile = firmwareDir.resolve("firmware.bin");
             GitHubArtifactDownloader.downloadArtifact(artifactUrl, outputFile, githubAccessToken);
 
-            System.out.println("✅ Firmware downloaded to: " + outputFile.toAbsolutePath());
+            JunoLogger.success("Firmware downloaded to: " + outputFile.toAbsolutePath());
 
         } catch (Exception e) {
             throw new RuntimeException("❌ Remote flashing failed.", e);

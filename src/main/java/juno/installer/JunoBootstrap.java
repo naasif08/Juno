@@ -1,49 +1,44 @@
 package juno.installer;
 
 import juno.detector.JunoDetector;
+import juno.logger.JunoLogger;
 
 import java.io.IOException;
 
 public class JunoBootstrap {
     public static void runFirstTimeSetupLocal() {
         if (!EspIdfInstaller.isInstalled()) {
-            System.out.println("⚙️ First-time setup: installing ESP-IDF...");
+            JunoLogger.info("Setting up Environment for Juno...");
             EspIdfInstaller.downloadAndInstall(); // handles ZIP + extract
         } else {
-            System.out.println("✅ ESP-IDF already installed.");
+            JunoLogger.success("Already Juno Environment installed...");
         }
 
         try {
             PythonInstaller.ensureMinicondaInstalled(); // handles ZIP + extract
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
         if (!GitInstaller.isGitPresent()) {
-            System.out.println("Installing Portable Git...");
+            JunoLogger.info("Installing Portable Git...");
             try {
                 GitInstaller.ensureGitInstalled();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            System.out.println("✅ Portable Git is already installed");
+            JunoLogger.success("✅ Portable Git is already installed");
         }
 
 
-        System.out.println("⚙️ Installing ESP dependencies.");
+        JunoLogger.info("Installing ESP dependencies.");
         try {
             ESPInstaller.runInstallScript();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("✅ All Dependencies are installed successfully!");
+        JunoLogger.success("All Dependencies are installed successfully!");
         JunoDetector.printDetectedPaths();
     }
 

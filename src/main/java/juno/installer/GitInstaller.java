@@ -1,5 +1,7 @@
 package juno.installer;
 
+import juno.logger.JunoLogger;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,20 +22,20 @@ public class GitInstaller {
 
     public static void ensureGitInstalled() throws IOException, InterruptedException {
         if (isGitPresent()) {
-            System.out.println("✅ Portable Git already installed at: " + GIT_EXECUTABLE_PATH);
+            JunoLogger.success("Portable Git already installed at: " + GIT_EXECUTABLE_PATH);
             return;
         }
 
-        System.out.println("⬇️  Installing Portable Git for OS: " + detectOS());
+        JunoLogger.info("Installing Portable Git for OS: " + detectOS());
 
         if (Files.exists(DOWNLOAD_FILE)) {
-            System.out.println("⚠️  Previous archive found. Deleting...");
+            JunoLogger.warn("Previous archive found. Deleting...");
             Files.delete(DOWNLOAD_FILE);
         }
 
         // Download archive
         String downloadUrl = getDownloadUrl();
-        System.out.println("🌐 Downloading from: " + downloadUrl);
+        JunoLogger.info("🌐 Downloading from: " + downloadUrl);
         downloadFile(downloadUrl, DOWNLOAD_FILE);
 
         // Clean old Git folder (cmd or bin)
@@ -42,27 +44,27 @@ public class GitInstaller {
                 : ESP_IDF_PATH.resolve("bin");
 
         if (Files.exists(oldGitFolder)) {
-            System.out.println("🧹 Cleaning old Git folder: " + oldGitFolder);
+            JunoLogger.info("🧹 Cleaning old Git folder: " + oldGitFolder);
             deleteRecursively(oldGitFolder);
         }
 
         // Extract archive
         if (isWindows()) {
-            System.out.println("📦 Extracting Windows Git (.7z.exe)...");
+            JunoLogger.info("📦 Extracting Windows Git (.7z.exe)...");
             extract7zExe(DOWNLOAD_FILE, ESP_IDF_PATH);
         } else {
-            System.out.println("📦 Extracting Unix Git (.tar.xz)...");
+            JunoLogger.info("📦 Extracting Unix Git (.tar.xz)...");
             extractTarXZ(DOWNLOAD_FILE, ESP_IDF_PATH);
         }
 
         Files.deleteIfExists(DOWNLOAD_FILE);
 
-        System.out.println("✅ Portable Git ready at: " + GIT_EXECUTABLE_PATH);
+        JunoLogger.info("✅ Portable Git ready at: " + GIT_EXECUTABLE_PATH);
     }
 
     public static boolean isGitPresent() {
         if (GIT_EXECUTABLE_PATH == null || !Files.exists(GIT_EXECUTABLE_PATH)) {
-            System.out.println("Git executable not found on disk.");
+            JunoLogger.info("Git executable not found on disk.");
             return false;
         }
 
@@ -73,22 +75,22 @@ public class GitInstaller {
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line = reader.readLine();
-                System.out.println("Git --version output: " + line);
+                JunoLogger.info("Git --version output: " + line);
                 if (line != null && line.toLowerCase().contains("git version")) {
-                    System.out.println("Git version detected successfully.");
+                    JunoLogger.info("Git version detected successfully.");
                     return true;
                 } else {
-                    System.out.println("Git --version output did NOT contain expected text.");
+                    JunoLogger.info("Git --version output did NOT contain expected text.");
                 }
             }
             process.waitFor();
         } catch (Exception e) {
-            System.out.println("Exception when running git --version:");
+            JunoLogger.info("Exception when running git --version:");
             e.printStackTrace();
             return false;
         }
 
-        System.out.println("Git executable found but did not behave as expected.");
+        JunoLogger.info("Git executable found but did not behave as expected.");
         return false;
     }
 
@@ -158,7 +160,7 @@ public class GitInstaller {
                     System.out.print("\rDownloading: " + progress + "%");
                 }
             }
-            System.out.println("\r✅ Download complete.");
+            JunoLogger.success("\r Download complete.");
         }
     }
 

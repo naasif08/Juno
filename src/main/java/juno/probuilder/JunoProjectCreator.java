@@ -1,6 +1,7 @@
 package juno.probuilder;
 
 import juno.detector.JunoPaths;
+import juno.logger.JunoLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class JunoProjectCreator {
         JunoProjectCreator.PROJECT_DIR = projectDir.getAbsolutePath();
         Path mainDir = projectDir.toPath().resolve("main");
         Files.createDirectories(mainDir);
-        System.out.println("Created project directory: " + projectDir.getAbsolutePath());
+        JunoLogger.info("Created project directory: " + projectDir.getAbsolutePath());
         writeFiles();
         return projectDir;
     }
@@ -38,12 +39,12 @@ public class JunoProjectCreator {
         writeTextFile(PROJECT_DIR + "\\main\\juno_serial.c", junoSerialSourceFile());
         writeTextFile(PROJECT_DIR + "\\main\\main.c", mainCContent());
 
-        System.out.println("Created all project files.");
+        JunoLogger.info("Created all project files.");
     }
 
     private static void writeTextFile(String path, String content) throws IOException {
         Files.write(Paths.get(path), content.getBytes());
-        System.out.println("Created: " + path);
+        JunoLogger.success("Created: " + path);
     }
 
     private static String cmakeListsTxtContent() {

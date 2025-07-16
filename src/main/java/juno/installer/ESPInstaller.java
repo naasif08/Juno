@@ -1,5 +1,7 @@
 package juno.installer;
 
+import juno.logger.JunoLogger;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Arrays;
@@ -35,7 +37,7 @@ public class ESPInstaller {
             throw new IOException("Install script not found: " + scriptPath);
         }
 
-        System.out.println("⚙️ Running ESP-IDF install script: " + scriptPath);
+        JunoLogger.info("Running ESP-IDF install script: " + scriptPath);
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(ESP_IDF_PATH.toFile());
@@ -59,7 +61,7 @@ public class ESPInstaller {
             throw new IOException("Install script failed with exit code: " + exitCode);
         }
 
-        System.out.println("✅ ESP-IDF install script completed successfully.");
+        JunoLogger.success("ESP-IDF install script completed successfully.");
     }
 
     private static String detectOS() {

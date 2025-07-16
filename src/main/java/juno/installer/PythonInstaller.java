@@ -1,5 +1,8 @@
 package juno.installer;
 
+import juno.logger.JunoLogger;
+import juno.utils.FileDownloader;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,7 +21,7 @@ public class PythonInstaller {
     public static void ensureMinicondaInstalled() throws IOException, InterruptedException {
         Path pythonExe = getPythonExecutable();
         if (Files.exists(pythonExe)) {
-            System.out.println("✅ Miniconda Python already installed at: " + pythonExe);
+            JunoLogger.info("Miniconda Python already installed at: " + pythonExe);
             return;
         }
 
@@ -30,8 +33,8 @@ public class PythonInstaller {
         String filename = url.substring(url.lastIndexOf("/") + 1);
         Path installerPath = Paths.get(filename);
 
-        System.out.println("⬇️ Downloading Miniconda from: " + url);
-        downloadFile(url, installerPath);
+        JunoLogger.info("Downloading Miniconda from: " + url);
+        FileDownloader.downloadWithResume(url, installerPath);
 
         if ("windows".equals(os)) {
             runWindowsInstaller(installerPath);
@@ -40,7 +43,7 @@ public class PythonInstaller {
         }
 
         Files.deleteIfExists(installerPath);
-        System.out.println("✅ Miniconda installed successfully at: " + pythonExe);
+        JunoLogger.success("Miniconda installed successfully at: " + pythonExe);
     }
 
     private static void runWindowsInstaller(Path installerPath) throws IOException, InterruptedException {
@@ -88,28 +91,6 @@ public class PythonInstaller {
                 return "https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh";
             default:
                 return null;
-        }
-    }
-
-    private static void downloadFile(String urlStr, Path outputPath) throws IOException {
-        URL url = new URL(urlStr);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        try (InputStream in = conn.getInputStream();
-             OutputStream out = Files.newOutputStream(outputPath)) {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            long total = 0;
-            long size = conn.getContentLengthLong();
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-                total += bytesRead;
-                if (size > 0) {
-                    int progress = (int) ((total * 100) / size);
-                    System.out.print("\rDownloading: " + progress + "%");
-                }
-            }
-            System.out.println("\rDownloading: 100%");
         }
     }
 

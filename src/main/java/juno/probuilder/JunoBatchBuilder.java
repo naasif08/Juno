@@ -1,6 +1,7 @@
 package juno.probuilder;
 
 import juno.detector.JunoPaths;
+import juno.logger.JunoLogger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -65,22 +66,19 @@ public class JunoBatchBuilder {
                 )
                 
                 echo ✅ Operation completed successfully.
-                """.
-                formatted(
-                        IDF_PATH,              // %s → set "IDF_PATH=..."
-                        OPENOCD_SCRIPTS,       // %s → set "OPENOCD_SCRIPTS=..."
-                        PYTHON_EXE_PATH,       // %s → set "PYTHON_EXE_PATH=..."
-                        GIT_PATH,              // %s → set "GIT_PATH=..."
-                        PATH,                  // %s → set "PATH=..."
-                        projectDir.getAbsolutePath(), // %s → cd /d "..."
-                        comPort,               // %s → flash to COMx
-                        comPort
-                );
+                """.formatted(IDF_PATH,              // %s → set "IDF_PATH=..."
+                OPENOCD_SCRIPTS,       // %s → set "OPENOCD_SCRIPTS=..."
+                PYTHON_EXE_PATH,       // %s → set "PYTHON_EXE_PATH=..."
+                GIT_PATH,              // %s → set "GIT_PATH=..."
+                PATH,                  // %s → set "PATH=..."
+                projectDir.getAbsolutePath(), // %s → cd /d "..."
+                comPort,               // %s → flash to COMx
+                comPort);
         try (FileWriter writer = new FileWriter(batchFile)) {
             writer.write(batchContent);
         }
 
-        System.out.println("✅ Batch file written to: " + batchFile.getAbsolutePath());
+        JunoLogger.success("Batch file written to: " + batchFile.getAbsolutePath());
 
     }
 
@@ -138,7 +136,7 @@ public class JunoBatchBuilder {
 
         bashFile.setExecutable(true); // Make script executable
 
-        System.out.println("✅ Bash script written to: " + bashFile.getAbsolutePath());
+        JunoLogger.success("Bash script written to: " + bashFile.getAbsolutePath());
     }
 
 

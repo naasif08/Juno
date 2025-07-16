@@ -1,5 +1,7 @@
 package juno.detector;
 
+import juno.logger.JunoLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -116,9 +118,9 @@ public final class JunoPaths {
 
         try {
             Files.writeString(propPath, template);
-            System.out.println("📝 Created .juno/juno.properties template.");
+            JunoLogger.success("Created .juno/juno.properties template.");
         } catch (IOException e) {
-            System.err.println("❌ Failed to create juno.properties: " + e.getMessage());
+            JunoLogger.error("Failed to create juno.properties: " + e.getMessage());
         }
     }
 
@@ -129,7 +131,7 @@ public final class JunoPaths {
         try (InputStream in = Files.newInputStream(propPath)) {
             Properties props = new Properties();
             props.load(in);
-            System.out.println("✅ Loaded manual overrides from juno.properties");
+            JunoLogger.info("Loaded manual overrides from juno.properties");
 
             idfPath = resolve(props, "juno.idfPath", idfPath);
             pythonPath = resolve(props, "juno.pythonPath", pythonPath);

@@ -1,6 +1,7 @@
 package juno.detector;
 
 import com.fazecast.jSerialComm.SerialPort;
+import juno.logger.JunoLogger;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -105,23 +106,23 @@ public class JunoDetector {
     }
 
     public static void printDetectedPaths() {
-        System.out.println("--- JUNO Detection Report ---");
-        System.out.println("IDF Path → " + detectIdfPath());
-        System.out.println("idf.py Path → " + detectIdfPyPath());
-        System.out.println("Python Path → " + detectPythonPath());
-        System.out.println("Python Executable → " + detectPythonExecutable());
-        System.out.println("Toolchain Bin → " + detectToolchainBin());
-        System.out.println("Ccache Bin → " + detectCcacheBin());
-        System.out.println("Git Path → " + detectEspressifGitPath());
-        System.out.println("CMake Path → " + detectCmakePath());
-        System.out.println("Ninja Path → " + detectNinjaPath());
-        System.out.println("Xtensa GDB → " + detectXtensaGdbPath());
-        System.out.println("Xtensa Toolchain Path → " + detectXtensaToolchainPath());
-        System.out.println("DFU Util Bin → " + detectDfuUtilBin());
-        System.out.println("OpenOCD Bin → " + detectOpenOcdBin());
-        System.out.println("OpenOCD Scripts → " + detectOpenOcdScriptsPath());
-        System.out.println("ESP32 Serial Port → " + detectEsp32Port());
-        System.out.println("------------------------------");
+        JunoLogger.info("--- JUNO Detection Report ---");
+        JunoLogger.info("IDF Path → " + detectIdfPath());
+        JunoLogger.info("idf.py Path → " + detectIdfPyPath());
+        JunoLogger.info("Python Path → " + detectPythonPath());
+        JunoLogger.info("Python Executable → " + detectPythonExecutable());
+        JunoLogger.info("Toolchain Bin → " + detectToolchainBin());
+        JunoLogger.info("Ccache Bin → " + detectCcacheBin());
+        JunoLogger.info("Git Path → " + detectEspressifGitPath());
+        JunoLogger.info("CMake Path → " + detectCmakePath());
+        JunoLogger.info("Ninja Path → " + detectNinjaPath());
+        JunoLogger.info("Xtensa GDB → " + detectXtensaGdbPath());
+        JunoLogger.info("Xtensa Toolchain Path → " + detectXtensaToolchainPath());
+        JunoLogger.info("DFU Util Bin → " + detectDfuUtilBin());
+        JunoLogger.info("OpenOCD Bin → " + detectOpenOcdBin());
+        JunoLogger.info("OpenOCD Scripts → " + detectOpenOcdScriptsPath());
+        JunoLogger.info("ESP32 Serial Port → " + detectEsp32Port());
+        JunoLogger.info("------------------------------");
     }
 
     private static boolean isWindows() {

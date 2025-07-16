@@ -1,5 +1,7 @@
 package juno.remote;
 
+import juno.logger.JunoLogger;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,7 +19,7 @@ public class GitHubArtifactDownloader {
      * @throws IOException if any I/O error occurs
      */
     public static void downloadArtifact(String artifactUrl, Path outputPath, String token) throws IOException {
-        System.out.println("⬇️ Downloading artifact from GitHub...");
+        JunoLogger.info("Downloading artifact from GitHub...");
         URL url = new URL(artifactUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -30,8 +32,7 @@ public class GitHubArtifactDownloader {
             throw new IOException("❌ Failed to download artifact. HTTP response: " + responseCode);
         }
 
-        try (InputStream in = connection.getInputStream();
-             OutputStream out = Files.newOutputStream(outputPath)) {
+        try (InputStream in = connection.getInputStream(); OutputStream out = Files.newOutputStream(outputPath)) {
             byte[] buffer = new byte[8192];
             int bytesRead;
 
@@ -40,7 +41,7 @@ public class GitHubArtifactDownloader {
             }
         }
 
-        System.out.println("✅ Artifact downloaded to: " + outputPath.toAbsolutePath());
+        JunoLogger.success("Artifact downloaded to: " + outputPath.toAbsolutePath());
     }
 }
 

@@ -1,5 +1,7 @@
 package juno.utils;
 
+import juno.logger.JunoLogger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,7 +29,7 @@ public class CommandRunner {
                 new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("[CMD] " + line);
+                JunoLogger.info("[CMD] " + line);
             }
         }
 
@@ -73,7 +75,7 @@ public class CommandRunner {
      * Logs and runs a command, mainly for debug.
      */
     public static int runVerbose(String[] command) throws IOException {
-        System.out.println("[Running] " + Arrays.toString(command));
+        JunoLogger.info("[Running] " + Arrays.toString(command));
         return runBlocking(command);
     }
 }
