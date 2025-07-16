@@ -21,9 +21,12 @@ public class EspIdfInstaller {
         return false;
     }
 
-    public static void downloadAndInstall() {
+    public static void downloadAndInstall() throws IOException {
         String url = "https://github.com/naasif08/JunoProject/releases/download/idf-v5.4.2/esp-idf-v5.4.2.zip";
         Path zipPath = getJunoFolder().resolve("esp-idf.zip");
+
+        if (!zipPath.getParent().toFile().exists()) Files.createDirectory(zipPath.getParent());
+
         Path targetDir = zipPath.getParent();
 
         try {
@@ -44,15 +47,11 @@ public class EspIdfInstaller {
 
     public static Path getJunoFolder() {
         JunoOS os = getOSType();
-        switch (os) {
-            case WINDOWS:
-                return Paths.get("C:", "Juno");
-            case MACOS:
-            case LINUX:
-                return Paths.get(System.getProperty("user.home"), "Juno");
-            default:
-                throw new UnsupportedOperationException("Unsupported OS for Juno setup.");
-        }
+        return switch (os) {
+            case WINDOWS -> Paths.get("C:", "Juno");
+            case MACOS, LINUX -> Paths.get(System.getProperty("user.home"), "Juno");
+            default -> throw new UnsupportedOperationException("Unsupported OS for Juno setup.");
+        };
     }
 
     public static JunoOS getOSType() {

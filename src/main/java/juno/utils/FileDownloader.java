@@ -52,7 +52,7 @@ public class FileDownloader {
                      RandomAccessFile raf = new RandomAccessFile(tempFile, "rw")) {
 
                     raf.seek(existingSize);
-                    byte[] buffer = new byte[8192];
+                    byte[] buffer = new byte[65536]; // 64 KB
                     long downloaded = existingSize;
                     long lastPrint = System.currentTimeMillis();
 
@@ -83,7 +83,6 @@ public class FileDownloader {
                 } else {
                     throw new IOException("Download incomplete. Expected " + expectedTotal + ", got " + tempFile.length());
                 }
-
             } catch (IOException e) {
                 retryCount++;
 

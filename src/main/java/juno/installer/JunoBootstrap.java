@@ -6,7 +6,7 @@ import juno.logger.JunoLogger;
 import java.io.IOException;
 
 public class JunoBootstrap {
-    public static void runFirstTimeSetupLocal() {
+    public static void runFirstTimeSetupLocal() throws IOException {
         if (!EspIdfInstaller.isInstalled()) {
             JunoLogger.info("Setting up Environment for Juno...");
             EspIdfInstaller.downloadAndInstall(); // handles ZIP + extract
