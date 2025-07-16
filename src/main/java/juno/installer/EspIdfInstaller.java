@@ -31,7 +31,7 @@ public class EspIdfInstaller {
             FileDownloader.downloadWithResume(url, zipPath);
 
             JunoLogger.info("Extracting...");
-            ZipExtractor.extract(zipPath, targetDir.getParent()); // extract into /Juno/
+            ZipExtractor.extract(zipPath, targetDir); // extract into /Juno/
 
             Files.delete(zipPath); // optional cleanup
             JunoLogger.success("ESP-IDF installed at: " + targetDir);

@@ -1,6 +1,7 @@
 package juno.installer;
 
 import juno.logger.JunoLogger;
+import juno.utils.FileDownloader;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -36,7 +37,7 @@ public class GitInstaller {
         // Download archive
         String downloadUrl = getDownloadUrl();
         JunoLogger.info("🌐 Downloading from: " + downloadUrl);
-        downloadFile(downloadUrl, DOWNLOAD_FILE);
+        FileDownloader.downloadWithResume(downloadUrl, DOWNLOAD_FILE);
 
         // Clean old Git folder (cmd or bin)
         Path oldGitFolder = detectOS().equals("windows")
@@ -136,32 +137,6 @@ public class GitInstaller {
         return isWindows()
                 ? "https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/PortableGit-2.42.0-64-bit.7z.exe"
                 : "https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.42.0.tar.xz";
-    }
-
-    // ----------------- Download -----------------
-
-    private static void downloadFile(String urlStr, Path output) throws IOException {
-        URL url = new URL(urlStr);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        int contentLength = conn.getContentLength();
-
-        try (InputStream in = conn.getInputStream();
-             OutputStream out = Files.newOutputStream(output)) {
-
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            long totalRead = 0;
-
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-                totalRead += bytesRead;
-                if (contentLength > 0) {
-                    int progress = (int) ((totalRead * 100) / contentLength);
-                    System.out.print("\rDownloading: " + progress + "%");
-                }
-            }
-            JunoLogger.success("\r Download complete.");
-        }
     }
 
     // ----------------- Extract -----------------

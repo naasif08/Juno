@@ -21,7 +21,7 @@ public class JunoFlasher {
         if (exitCode != 0) {
             throw new RuntimeException("Flashing failed with exit code: " + exitCode);
         } else {
-            JunoLogger.success("✅ Flashing finished successfully.");
+            JunoLogger.success("Flashing finished successfully.");
         }
     }
 
