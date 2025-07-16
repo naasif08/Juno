@@ -51,16 +51,16 @@ public class GitInstaller {
 
         // Extract archive
         if (isWindows()) {
-            JunoLogger.info("📦 Extracting Windows Git (.7z.exe)...");
+            JunoLogger.info("Extracting Windows Git (.7z.exe)...");
             extract7zExe(DOWNLOAD_FILE, ESP_IDF_PATH);
         } else {
-            JunoLogger.info("📦 Extracting Unix Git (.tar.xz)...");
+            JunoLogger.info("Extracting Unix Git (.tar.xz)...");
             extractTarXZ(DOWNLOAD_FILE, ESP_IDF_PATH);
         }
 
         Files.deleteIfExists(DOWNLOAD_FILE);
 
-        JunoLogger.info("✅ Portable Git ready at: " + GIT_EXECUTABLE_PATH);
+        JunoLogger.info("Portable Git ready at: " + GIT_EXECUTABLE_PATH);
     }
 
     public static boolean isGitPresent() {
