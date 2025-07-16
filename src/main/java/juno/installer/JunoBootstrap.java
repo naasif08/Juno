@@ -21,7 +21,6 @@ public class JunoBootstrap {
         }
 
         if (!GitInstaller.isGitPresent()) {
-            JunoLogger.info("Installing Portable Git...");
             try {
                 GitInstaller.ensureGitInstalled();
             } catch (IOException | InterruptedException e) {

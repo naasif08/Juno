@@ -48,8 +48,7 @@ public class FileDownloader {
                     throw new IOException("Server doesn't support resume. HTTP code: " + responseCode);
                 }
 
-                try (InputStream in = connection.getInputStream();
-                     RandomAccessFile raf = new RandomAccessFile(tempFile, "rw")) {
+                try (InputStream in = connection.getInputStream(); RandomAccessFile raf = new RandomAccessFile(tempFile, "rw")) {
 
                     raf.seek(existingSize);
                     byte[] buffer = new byte[65536]; // 64 KB
@@ -63,9 +62,12 @@ public class FileDownloader {
 
                         if (System.currentTimeMillis() - lastPrint > 1000) {
                             int percent = (int) ((downloaded * 100) / expectedTotal);
-                            System.out.print("\r[Juno] Downloading: [" + "▇".repeat(percent / 2) + "_".repeat(50 - (percent / 2)) + "] " + percent + "%");
+                            System.out.print("\r[JUNO] Downloading: [" + "▇".repeat(percent / 2) + "_".repeat(50 - (percent / 2)) + "] " + percent + "%");
                             lastPrint = System.currentTimeMillis();
                         }
+                    }
+                    if (expectedTotal > 0 && downloaded >= expectedTotal) {
+                        System.out.print("\r[JUNO] Downloading: [" + "▇".repeat(50) + "] 100%\n");
                     }
 
                     System.out.println(); // New line after progress bar
@@ -137,7 +139,7 @@ public class FileDownloader {
 
         long expectedSize = connection.getContentLengthLong();
         if (expectedSize <= 0) {
-           JunoLogger.warn("Warning: Unable to determine expected file size.");
+            JunoLogger.warn("Warning: Unable to determine expected file size.");
         } else {
             JunoLogger.info("Expected file size: " + (expectedSize / (1024 * 1024)) + " MB");
         }

@@ -36,7 +36,7 @@ public class GitInstaller {
 
         // Download archive
         String downloadUrl = getDownloadUrl();
-        JunoLogger.info("🌐 Downloading from: " + downloadUrl);
+        JunoLogger.info("Downloading from: " + downloadUrl);
         FileDownloader.downloadWithResume(downloadUrl, DOWNLOAD_FILE);
 
         // Clean old Git folder (cmd or bin)
@@ -65,7 +65,6 @@ public class GitInstaller {
 
     public static boolean isGitPresent() {
         if (GIT_EXECUTABLE_PATH == null || !Files.exists(GIT_EXECUTABLE_PATH)) {
-            JunoLogger.info("Git executable not found on disk.");
             return false;
         }
 
